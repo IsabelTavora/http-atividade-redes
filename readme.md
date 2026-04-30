@@ -49,7 +49,7 @@ Ao final desta atividade, o aluno será capaz de:
 ### Ambiente técnico
 - Sistema operacional: Windows 10/11 (recomendado para Fiddler Classic) ou Linux/macOS (usar mitmproxy/HTTP Toolkit).
 - Navegador Chrome, Firefox ou Edge atualizado.
-- Acesso à internet sem bloqueios a sites de teste (`httpbin.org`, `httpstat.us`, `example.com`, `neverssl.com`).
+- Acesso à internet sem bloqueios a sites de teste (`httpbin.org`, `example.com`, `neverssl.com`).
 
 ### Material
 - Template `relatorio.md` presente na pasta do roteiro escolhido.
@@ -90,7 +90,7 @@ O **HyperText Transfer Protocol** (HTTP) é um protocolo de camada de aplicaçã
 | HTTP/2    | TCP + TLS (ALPN `h2`) | 443          | Binário, multiplexação, *header compression* (HPACK)    |
 | HTTP/3    | QUIC (UDP + TLS 1.3)  | 443          | Sem *head-of-line blocking*, estabelecimento mais rápido |
 
-**HTTPS** é HTTP encapsulado em TLS. Toda a mensagem HTTP — linha de status, headers e body — é cifrada. Somente o IP, a porta e o SNI (nome do host) ficam visíveis a um observador externo.
+**HTTPS** é HTTP encapsulado em TLS. Toda a mensagem HTTP — linha de status, headers e body — é cifrada. Em um cenário típico, sem tecnologias adicionais como ECH (*Encrypted Client Hello*) ou DNS cifrado, IP, porta, DNS e SNI (nome do host) ainda podem ficar visíveis a um observador externo.
 
 ### 4.2. Anatomia de uma mensagem HTTP
 
@@ -178,7 +178,7 @@ Agrupados por classe (primeiro dígito):
 | `Authorization`    | Credenciais (`Basic`, `Bearer <token>`, etc.)                        |
 | `Referer`          | URL de origem da requisição                                          |
 | `Content-Type`     | MIME do corpo enviado (em POST/PUT)                                  |
-| `Content-Length`   | Tamanho do corpo em bytes                                            |
+| `Content-Length`   | Tamanho do corpo em bytes quando o tamanho é conhecido antecipadamente |
 | `If-None-Match`    | Validação de cache por ETag                                          |
 
 **De response** (servidor → cliente):
@@ -187,7 +187,7 @@ Agrupados por classe (primeiro dígito):
 |--------------------|----------------------------------------------------------------------|
 | `Server`           | Identificação do software servidor                                   |
 | `Content-Type`     | MIME do corpo retornado                                              |
-| `Content-Length`   | Tamanho do corpo em bytes                                            |
+| `Content-Length`   | Tamanho do corpo em bytes quando o tamanho é conhecido antecipadamente |
 | `Content-Encoding` | Compressão aplicada ao corpo                                         |
 | `Set-Cookie`       | Cookie a ser armazenado pelo cliente                                 |
 | `Cache-Control`    | Política de cache (`no-store`, `max-age=3600`, `public`)             |

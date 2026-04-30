@@ -112,7 +112,7 @@ Se o Fiddler ainda mostrar apenas `CONNECT` com conteúdo cifrado, repita a etap
 
 **Pergunta 1.1:** Quantos cabeçalhos o navegador enviou no request? Liste-os.
 
-**Pergunta 1.2:** Qual foi o `Content-Length` da resposta? O corpo retornado é HTML, texto puro, JSON ou binário? Como você descobriu?
+**Pergunta 1.2:** Qual foi o `Content-Length` da resposta? Se esse cabeçalho não apareceu, registre `Transfer-Encoding`, a versão do protocolo ou outro indício observado. O corpo retornado é HTML, texto puro, JSON ou binário? Como você descobriu?
 
 ---
 
@@ -133,7 +133,7 @@ Se o Fiddler ainda mostrar apenas `CONNECT` com conteúdo cifrado, repita a etap
 
 **Pergunta 2.2:** Compare o cabeçalho `User-Agent` enviado pelo navegador com o que aparece no JSON da resposta. Eles coincidem? Justifique.
 
-**Pergunta 2.3:** Modifique a URL para `https://httpbin.org/headers`. Liste três cabeçalhos que o servidor vê mas que **não aparecem explicitamente** na aba Raw do request, e explique de onde eles vêm (dica: Fiddler insere alguns, o servidor de proxy reverso do httpbin pode inserir outros).
+**Pergunta 2.3:** Modifique a URL para `https://httpbin.org/headers`. Liste até três cabeçalhos que o servidor vê mas que **não aparecem explicitamente** na aba Raw do request, e explique de onde eles vêm (dica: Fiddler pode inserir alguns, o servidor de proxy reverso do httpbin pode inserir outros). Se não encontrar três, registre os que encontrar e explique por que o resultado pode variar.
 
 ---
 
@@ -164,25 +164,28 @@ Se o Fiddler ainda mostrar apenas `CONNECT` com conteúdo cifrado, repita a etap
 
 **Objetivo:** provocar e identificar códigos de status representativos.
 
-Use o serviço `httpstat.us`, que retorna o código especificado na URL.
+Use o serviço `httpbin.org`, que possui endpoints próprios para provocar códigos de status controlados. Para o `301`, use o endpoint de redirecionamento indicado, pois ele retorna também o cabeçalho `Location`.
 
 Para cada URL abaixo, acesse no navegador e localize a sessão no Fiddler:
 
+> No caso do `301`, o navegador provavelmente seguirá o redirecionamento e criará uma segunda sessão para o destino (`/get`). Para esta atividade, registre a sessão original que retornou `301 Moved Permanently`.
+
 | # | URL                                   | Classe esperada |
 |---|---------------------------------------|-----------------|
-| 1 | `https://httpstat.us/200`             | 2xx             |
-| 2 | `https://httpstat.us/301`             | 3xx             |
-| 3 | `https://httpstat.us/404`             | 4xx             |
-| 4 | `https://httpstat.us/418`             | 4xx (humorado)  |
-| 5 | `https://httpstat.us/500`             | 5xx             |
-| 6 | `https://httpstat.us/503`             | 5xx             |
+| 1 | `https://httpbin.org/status/200`      | 2xx             |
+| 2 | `https://httpbin.org/redirect-to?status_code=301&url=/get` | 3xx |
+| 3 | `https://httpbin.org/status/404`      | 4xx             |
+| 4 | `https://httpbin.org/status/418`      | 4xx (humorado)  |
+| 5 | `https://httpbin.org/status/500`      | 5xx             |
+| 6 | `https://httpbin.org/status/503`      | 5xx             |
 
-Adicionalmente, para observar um **304 Not Modified**:
-7. Acesse `https://www.example.com`, aguarde carregar.
-8. Pressione **F5** (recarregar normal). O Fiddler deve mostrar requests condicionais com `If-Modified-Since` ou `If-None-Match` recebendo `304`.
+Adicionalmente, para observar um **304 Not Modified** de forma controlada:
+7. Acesse `https://www.example.com`, aguarde carregar e anote o cabeçalho `Last-Modified` da resposta.
+8. No **Composer** do Fiddler (ou ferramenta equivalente), envie um `GET` para `https://www.example.com/` incluindo o cabeçalho `If-Modified-Since` com o valor exato de `Last-Modified` observado no passo anterior.
+9. Localize a sessão condicional gerada no passo 8 e confirme que a resposta retornou `304 Not Modified`. Use esta sessão condicional como a linha 7 da tabela. Se o servidor retornar `200 OK`, registre os cabeçalhos de cache observados e explique a diferença.
 
 **Registrar no relatório:**
-- Tabela com as 7 sessões: método, URL, *status-line* completa, `Content-Length`, presença ou ausência de body.
+- Tabela com as 7 sessões: método, URL, *status-line* completa, `Content-Length` ou `Transfer-Encoding` quando presentes, presença ou ausência de body.
 
 **Pergunta 4.1:** Em qual dos status acima o corpo da resposta está **ausente** ou tem tamanho zero? Isso é obrigatório pela especificação ou depende do servidor?
 
@@ -196,11 +199,12 @@ Adicionalmente, para observar um **304 Not Modified**:
 
 **Objetivo:** reconhecer o propósito funcional de cada cabeçalho em tráfego real.
 
-1. Acessar `https://www.google.com` com o cache limpo (janela anônima / privativa).
-2. Selecionar a **primeira** sessão para `www.google.com` (documento HTML principal).
-3. Na aba **Inspectors → Headers**, analisar request e response.
+1. Em uma janela anônima / privativa, acessar `https://httpbin.org/response-headers?Cache-Control=max-age%3D3600&Set-Cookie=teste%3D1&Strict-Transport-Security=max-age%3D31536000` para provocar cabeçalhos controlados.
+2. Acessar `https://httpbin.org/gzip` para observar uma resposta compactada.
+3. Recarregar a primeira URL uma vez, para verificar se o cookie `teste=1` passa a aparecer no cabeçalho `Cookie` do request.
+4. Selecionar as sessões correspondentes e, na aba **Inspectors → Headers**, analisar request e response.
 
-**Preencher a tabela abaixo no relatório** com os valores reais que você observou:
+**Preencher a tabela abaixo no relatório** com os valores reais observados, agregando dados das sessões acima conforme o cabeçalho apareça:
 
 | Cabeçalho            | Presente em (Req/Resp)? | Valor capturado | Função em uma frase |
 |----------------------|-------------------------|-----------------|---------------------|
@@ -216,7 +220,7 @@ Adicionalmente, para observar um **304 Not Modified**:
 | `Cache-Control`      |                         |                 |                     |
 | `Strict-Transport-Security` |                  |                 |                     |
 
-**Pergunta 5.1:** O servidor retornou `Content-Encoding: gzip` (ou `br`)? Se sim, compare o valor de `Content-Length` com o tamanho do HTML visível na aba **Response → TextView**. O que explica a diferença?
+**Pergunta 5.1:** O servidor retornou `Content-Encoding: gzip` (ou `br`)? Se sim, compare o valor de `Content-Length`, quando presente, com o tamanho do conteúdo visível na aba **Response → TextView**. O que explica a diferença?
 
 **Pergunta 5.2:** O que acontece com um request onde o cliente envia `Accept: application/json` mas o recurso só existe em `text/html`? (Pesquisar o código de status correto.)
 
@@ -230,18 +234,18 @@ Adicionalmente, para observar um **304 Not Modified**:
 
 1. **Desabilitar** temporariamente a decriptação HTTPS: *Tools → Options → HTTPS → desmarcar Decrypt HTTPS traffic*. Clicar OK.
 2. Acessar `http://neverssl.com` (força HTTP puro).
-3. Acessar `https://www.google.com`.
+3. Acessar `https://httpbin.org/get`.
 4. Comparar ambas as sessões no Fiddler.
 
 **Registrar no relatório:**
 - Captura de tela de cada sessão com a aba **Raw** aberta.
 - O método, o host e o que é (ou não é) visível em cada caso.
 
-**Pergunta 6.1:** No caso do `https://www.google.com`, que método HTTP aparece na sessão? Explique o que esse método faz e por que ele existe.
+**Pergunta 6.1:** No caso do `https://httpbin.org/get`, que método HTTP aparece na sessão? Explique o que esse método faz e por que ele existe.
 
 **Pergunta 6.2:** Com a decriptação desabilitada, quais informações sobre o tráfego HTTPS **ainda** são visíveis para o Fiddler e quais estão ocultas?
 
-5. **Reabilitar** a decriptação e repetir o acesso a `https://www.google.com`.
+5. **Reabilitar** a decriptação e repetir o acesso a `https://httpbin.org/get`.
 
 **Pergunta 6.3:** O que muda na interface do Fiddler quando a decriptação está ativa? Quais dados passam a ser inspecionáveis?
 
@@ -265,9 +269,9 @@ Adicionalmente, para observar um **304 Not Modified**:
 
 **Pergunta 7.1:** O cabeçalho `Set-Cookie` só aparece uma vez ou em toda requisição? Justifique.
 
-**Pergunta 7.2:** Que atributos o `Set-Cookie` trouxe (`Path`, `Domain`, `Expires`, `Max-Age`, `Secure`, `HttpOnly`, `SameSite`)? Para cada um presente, explique brevemente sua função.
+**Pergunta 7.2:** Que atributos o `Set-Cookie` trouxe (`Path`, `Domain`, `Expires`, `Max-Age`, `Secure`, `HttpOnly`, `SameSite`)? Para cada um presente, explique brevemente sua função. Se algum atributo da lista não apareceu, registre como **não observado**.
 
-**Pergunta 7.3:** Se o cookie não tivesse o atributo `Secure`, em que cenário ele poderia vazar? (Relacione com a Atividade 6.)
+**Pergunta 7.3:** O cookie observado trouxe o atributo `Secure`? Se não trouxe, em que cenário ele poderia vazar? (Relacione com a Atividade 6.)
 
 **Pergunta 7.4:** Na aba **Inspectors → Cookies** do Fiddler, compare o cookie armazenado com o que o servidor devolve no campo `cookies` do JSON da resposta. Eles coincidem?
 
@@ -291,7 +295,7 @@ Adicionalmente, para observar um **304 Not Modified**:
 
 **Pergunta 8.1:** O servidor tem como detectar que o `User-Agent` foi forjado? Discuta.
 
-**Pergunta 8.2:** Repita o exercício, mas desta vez habilite **breakpoint de response** (**Rules → Automatic Breakpoints → After Responses**). Acesse `https://httpstat.us/200` e, quando o Fiddler pausar, edite a *status-line* para `HTTP/1.1 404 Not Found`. Libere. O que o navegador exibe? A manipulação afetou apenas a visualização local — comente sobre o papel do proxy como *man-in-the-middle*.
+**Pergunta 8.2:** Repita o exercício, mas desta vez habilite **breakpoint de response** (**Rules → Automatic Breakpoints → After Responses**). Acesse `https://httpbin.org/status/200` e, quando o Fiddler pausar, edite a *status-line* para `HTTP/1.1 404 Not Found`. Libere. O que o navegador exibe? A manipulação afetou apenas a visualização local — comente sobre o papel do proxy como *man-in-the-middle*.
 
 **Pergunta 8.3:** Desabilite todos os breakpoints (**Rules → Automatic Breakpoints → Disabled**, atalho **Shift+F11**) ao terminar.
 

@@ -53,7 +53,7 @@ Cabeçalhos:
 - ...
 
 ### Pergunta 1.2
-> Qual foi o `Content-Length` da resposta? O corpo retornado é HTML, texto puro, JSON ou binário? Como você descobriu?
+> Qual foi o `Content-Length` da resposta? Se ele não apareceu, registre `Transfer-Encoding`, versão do protocolo ou outro indício observado. O corpo retornado é HTML, texto puro, JSON ou binário? Como você descobriu?
 
 **Resposta:** [...]
 
@@ -98,15 +98,15 @@ Cabeçalhos:
 **Resposta:** [...]
 
 ### Pergunta 2.3
-> Em `http://httpbin.org/headers`, liste três cabeçalhos que o servidor vê mas **não aparecem** no Raw do request. De onde vêm?
+> Em `http://httpbin.org/headers`, liste até três cabeçalhos que o servidor vê mas **não aparecem** no Raw do request. De onde vêm? Se não encontrar três, explique por que o resultado pode variar.
 
 **Resposta:**
 
-| Cabeçalho visto pelo servidor | Origem provável |
-|-------------------------------|------------------|
-| [...]                         | [...]            |
-| [...]                         | [...]            |
-| [...]                         | [...]            |
+| Cabeçalho visto pelo servidor | Origem provável | Observação |
+|-------------------------------|-----------------|------------|
+| [...]                         | [...]           | [...]      |
+| [...]                         | [...]           | [...]      |
+| [...]                         | [...]           | [...]      |
 
 ---
 
@@ -168,19 +168,19 @@ Cabeçalhos:
 
 ---
 
-## Atividade 4 — Catálogo de status codes (`http://httpstat.us/...`)
+## Atividade 4 — Catálogo de status codes (`http://httpbin.org/...`)
 
 **Captura de tela (lista do Fiddler com as 7 sessões):** `evidencias/atv4_lista.png`
 
-| # | Método | URL | Status-line | `Content-Length` | Body presente? |
-|---|--------|-----|-------------|--------------------|----------------|
-| 1 | GET    | `http://httpstat.us/200` | [...] | [...] | [sim/não] |
-| 2 | GET    | `http://httpstat.us/301` | [...] | [...] | [sim/não] |
-| 3 | GET    | `http://httpstat.us/404` | [...] | [...] | [sim/não] |
-| 4 | GET    | `http://httpstat.us/418` | [...] | [...] | [sim/não] |
-| 5 | GET    | `http://httpstat.us/500` | [...] | [...] | [sim/não] |
-| 6 | GET    | `http://httpstat.us/503` | [...] | [...] | [sim/não] |
-| 7 | GET    | `http://example.com` (F5) | [...] | [...] | [sim/não] |
+| # | Método | URL | Status-line | `Content-Length` / `Transfer-Encoding` | Body presente? |
+|---|--------|-----|-------------|-----------------------------------------|----------------|
+| 1 | GET    | `http://httpbin.org/status/200` | [...] | [...] | [sim/não] |
+| 2 | GET    | `http://httpbin.org/redirect-to?status_code=301&url=/get` | [...] | [...] | [sim/não] |
+| 3 | GET    | `http://httpbin.org/status/404` | [...] | [...] | [sim/não] |
+| 4 | GET    | `http://httpbin.org/status/418` | [...] | [...] | [sim/não] |
+| 5 | GET    | `http://httpbin.org/status/500` | [...] | [...] | [sim/não] |
+| 6 | GET    | `http://httpbin.org/status/503` | [...] | [...] | [sim/não] |
+| 7 | GET    | `http://example.com/` com `If-Modified-Since` | [...] | [...] | [sim/não] |
 
 ### Pergunta 4.1
 > Em qual dos status o corpo está ausente/tamanho zero? Isso é obrigatório pela especificação ou depende do servidor?
@@ -199,7 +199,7 @@ Cabeçalhos:
 
 ---
 
-## Atividade 5 — Identificação de cabeçalhos (`http://httpforever.com` + `http://httpbin.org/response-headers?...`)
+## Atividade 5 — Identificação de cabeçalhos (`http://httpbin.org/response-headers?...` + `/gzip`)
 
 **Captura de tela (Inspectors → Headers):** `evidencias/atv5_headers.png`
 
@@ -218,7 +218,7 @@ Cabeçalhos:
 | `Strict-Transport-Security`  | [...]    | [...]            | [...]                |
 
 ### Pergunta 5.1
-> `Content-Encoding: gzip`/`br` apareceu? Compare `Content-Length` com o HTML visível. O que explica a diferença?
+> `Content-Encoding: gzip`/`br` apareceu? Compare `Content-Length`, quando presente, com o conteúdo visível. O que explica a diferença?
 
 **Resposta:** [...]
 
@@ -237,10 +237,10 @@ Cabeçalhos:
 ## Atividade 6 — HTTP vs HTTPS (análise sem decriptação)
 
 **Captura de tela HTTP (`neverssl.com`):** `evidencias/atv6_http.png`
-**Captura de tela HTTPS (`www.google.com`, apenas CONNECT):** `evidencias/atv6_https.png`
+**Captura de tela HTTPS (`https://httpbin.org/get`, apenas CONNECT):** `evidencias/atv6_https.png`
 
 ### Pergunta 6.1
-> Que método HTTP aparece na sessão do `https://www.google.com`? O que ele faz e por que existe?
+> Que método HTTP aparece na sessão do `https://httpbin.org/get`? O que ele faz e por que existe?
 
 **Resposta:** [...]
 
@@ -288,7 +288,7 @@ Cabeçalhos:
 **Resposta:** [...]
 
 ### Pergunta 7.2
-> Que atributos o `Set-Cookie` trouxe? Explique cada um presente.
+> Que atributos o `Set-Cookie` trouxe? Explique cada um presente. Para atributos não observados, registre `não observado`.
 
 **Resposta:**
 
@@ -343,7 +343,7 @@ Cabeçalhos:
 
 **Captura de tela:** `evidencias/atv9_redir.png`
 
-**Status-line da resposta a `http://www.google.com`:**
+**Status-line da resposta a `http://httpbin.org/redirect-to?status_code=301&url=https%3A%2F%2Fhttpbin.org%2Fget`:**
 
 ```http
 [colar aqui, ex: HTTP/1.1 301 Moved Permanently]
